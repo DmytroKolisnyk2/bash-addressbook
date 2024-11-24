@@ -2,6 +2,10 @@
 
 ADDRESS_BOOK="addressbook.txt"
 
+if [ ! -f "$ADDRESS_BOOK" ]; then
+    touch "$ADDRESS_BOOK"
+fi
+
 add_contact() {
     echo "Enter Name:"
     read name
@@ -14,14 +18,15 @@ add_contact() {
     echo "Contact added successfully."
 }
 
-
 remove_contact() {
     echo "Enter the name, phone, or email of the contact to remove:"
     read query
 
-    grep -i "$query" "$ADDRESS_BOOK"
-    if [ $? -eq 0 ]; then
-        echo "Are you sure you want to delete this contact? (y/n)"
+    matching_contacts=$(grep -i "$query" "$ADDRESS_BOOK")
+    if [ -n "$matching_contacts" ]; then
+        echo "Matching contact(s):"
+        echo "$matching_contacts"
+        echo "Are you sure you want to delete these contact(s)? (y/n)"
         read confirmation
         if [ "$confirmation" == "y" ]; then
             grep -iv "$query" "$ADDRESS_BOOK" > temp.txt && mv temp.txt "$ADDRESS_BOOK"
@@ -38,9 +43,11 @@ search_contact() {
     echo "Enter search query:"
     read query
 
-    grep -i "$query" "$ADDRESS_BOOK"
-
-    if [ $? -ne 0 ]; then
+    matching_contacts=$(grep -i "$query" "$ADDRESS_BOOK")
+    if [ -n "$matching_contacts" ]; then
+        echo "Matching contact(s):"
+        echo "$matching_contacts"
+    else
         echo "No contacts found"
     fi
 }
